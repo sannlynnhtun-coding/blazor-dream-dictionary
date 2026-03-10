@@ -5,18 +5,20 @@
     "start_url": "./",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#7888AF",
+    "theme_color": "#3b82f6",
     "prefer_related_applications": false,
     "icons": [
         {
-            "src": "favicon.png",
-            "type": "image/png",
-            "sizes": "512x512"
+            "src": "favicon.svg",
+            "type": "image/svg+xml",
+            "sizes": "any",
+            "purpose": "any"
         },
         {
-            "src": "favicon.png",
-            "type": "image/png",
-            "sizes": "192x192"
+            "src": "favicon.svg",
+            "type": "image/svg+xml",
+            "sizes": "any",
+            "purpose": "maskable"
         }
     ]
 }
