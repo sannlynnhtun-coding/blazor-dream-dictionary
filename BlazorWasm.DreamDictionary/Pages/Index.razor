@@ -1,126 +1,198 @@
 ﻿@page "/"
 @inject HttpClient HttpClient
+@inject IndexedDbService IndexedDb
+@using BlazorWasm.DreamDictionary.Services
 
 <PageTitle>Dream Dictionary</PageTitle>
 
-<h1 class="text-4xl font-bold text-center mb-8">
-	<span class="text-gray-500">မြန်မာ</span> <span class="text-gray-900">အက္ခရာ</span>
-</h1>
-@if (Dreams.Count == 0)
-{
-	<div class="grid">
-		@{
-			List<MyanmarLetter> alphabet = AlphabetGenerator.GetMyanmarAlphabet();
-			for (int i = 0; i < alphabet.Count; i++)
-			{
-				int id = i + 1;
-				MyanmarLetter letter = alphabet[i];
-				<div class="card" @onclick="() => Detail(letter.Letter)">
-					<p class="letter">@letter.Letter</p>
-					<p>@letter.Pronunciation</p>
-				</div>
-			}
-		}
-	</div>
-}
-else
-{
-	<div style="text-align: center;">
-		<button type="button" class="back-button" @onclick="Back">Back</button>
-	</div>
-	<br />
-	<div>
-		<ul class="list-disc">
-			@for (int i = 0; i < Dreams.Count; i++)
-			{
-				var item = Dreams[i];
-				<li class="mb-2">
-					@(i + 1).<span class="font-bold">@item.Title</span>
-				</li>
-			}
-		</ul>
-	</div>
-}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <header class="text-center mb-12">
+        <div class="inline-flex items-center justify-center p-4 bg-primary/10 rounded-3xl mb-6 shadow-sm">
+            <img src="favicon.svg" class="w-16 h-16 animate-pulse" alt="Logo" />
+        </div>
+        <h1 class="text-5xl font-extrabold tracking-tight mb-4 text-balance">
+            <span class="text-muted-foreground">မြန်မာ</span>
+            <span class="text-primary">အိပ်မက်အဘိဓာန်</span>
+        </h1>
+        <p class="text-muted-foreground text-lg">သင်မြင်မက်သော အိပ်မက်များ၏ အဓိပ္ပာယ်ကို ရှာဖွေပါ။</p>
+    </header>
+
+    <div class="relative max-w-2xl mx-auto mb-12">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+        <input type="text" 
+               class="block w-full pl-10 pr-3 py-4 border border-input rounded-2xl bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all shadow-sm text-lg" 
+               placeholder="အိပ်မက်ခေါင်းစဉ်ဖြင့် ရှာဖွေပါ..."
+               @bind="SearchQuery" 
+               @bind:event="oninput" 
+               @onkeyup="HandleSearch" />
+    </div>
+
+    @if (IsSearching || SelectedGroupId > 0)
+    {
+        <div class="mb-8 flex items-center justify-between">
+            <button @onclick="BackToHome" class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors font-medium">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                ပြန်သွားမည်
+            </button>
+            <div class="text-sm text-muted-foreground">
+                ရလဒ် @Dreams.Count ခု တွေ့ရှိပါသည်။
+            </div>
+        </div>
+
+        <div class="grid gap-4">
+            @if (Dreams.Any())
+            {
+                @for (int i = 0; i < Dreams.Count; i++)
+                {
+                    var item = Dreams[i];
+                    <div class="p-6 rounded-2xl bg-card border shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex gap-4">
+                            <span class="text-primary font-bold hidden sm:inline">@(i + 1).</span>
+                            <p class="text-lg leading-relaxed">@item.Title</p>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center py-20 bg-muted/30 rounded-3xl border-2 border-dashed">
+                    <p class="text-muted-foreground text-xl">ရှာဖွေမှုရလဒ် မရှိပါ။</p>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-6 mt-12">
+            @foreach (var letter in Alphabet)
+            {
+                <button @onclick="() => FilterByLetter(letter.Letter)" 
+                        class="aspect-square flex flex-col items-center justify-center p-4 rounded-2xl bg-card border border-border hover:border-primary hover:bg-primary/5 hover:scale-105 transition-all group shadow-sm">
+                    <span class="text-3xl font-bold text-foreground group-hover:text-primary transition-colors">@letter.Letter</span>
+                    <span class="text-[10px] uppercase tracking-tighter text-muted-foreground mt-1 text-center leading-none">@letter.Pronunciation</span>
+                </button>
+            }
+        </div>
+    }
+</div>
+
 @code {
-	public class MyanmarLetter
-	{
-		public string Letter { get; set; }
-		public string Pronunciation { get; set; }
-	}
+    public class MyanmarLetter
+    {
+        public string Letter { get; set; } = null!;
+        public string Pronunciation { get; set; } = null!;
+    }
 
-	public class AlphabetGenerator
-	{
-		public static List<MyanmarLetter> GetMyanmarAlphabet()
-		{
-			return new List<MyanmarLetter>()
-		{
-			new MyanmarLetter { Letter = "က", Pronunciation = "ka (gyi)" },
-			new MyanmarLetter { Letter = "ခ", Pronunciation = "kha (kway)" },
-			new MyanmarLetter { Letter = "ဂ", Pronunciation = "ga (nge)" },
-			new MyanmarLetter { Letter = "ဃ", Pronunciation = "ga (gyi)" },
-			new MyanmarLetter { Letter = "င", Pronunciation = "nga" },
-			new MyanmarLetter { Letter = "စ", Pronunciation = "sa (lone)" },
-			new MyanmarLetter { Letter = "ဆ", Pronunciation = "sa (lain)" },
-			new MyanmarLetter { Letter = "ဇ", Pronunciation = "za (kwe)" },
-			new MyanmarLetter { Letter = "ဈ", Pronunciation = "za (myin swe)" },
-			new MyanmarLetter { Letter = "ည", Pronunciation = "nya" },
-			new MyanmarLetter { Letter = "ဋ", Pronunciation = "ta\n(ta linn chate)" },
-			new MyanmarLetter { Letter = "ဌ", Pronunciation = "hta\n(wun bare)" },
-			new MyanmarLetter { Letter = "ဍ", Pronunciation = "da\n(yin gaout)" },
-			new MyanmarLetter { Letter = "ဎ", Pronunciation = "da\n(yin moat)" },
-			new MyanmarLetter { Letter = "ဏ", Pronunciation = "na (gyi)" },
-			new MyanmarLetter { Letter = "တ", Pronunciation = "ta\n(wun pu)" },
-			new MyanmarLetter { Letter = "ထ", Pronunciation = "hta\n(hsin htoo)" },
-			new MyanmarLetter { Letter = "ဒ", Pronunciation = "da\n(dway)" },
-			new MyanmarLetter { Letter = "ဓ", Pronunciation = "da\n(oat chike)" },
-			new MyanmarLetter { Letter = "န", Pronunciation = "na (nge)" },
-			new MyanmarLetter { Letter = "ပ", Pronunciation = "pa (sout)" },
-			new MyanmarLetter { Letter = "ဖ", Pronunciation = "pha\n(wet htoke)" },
-			new MyanmarLetter { Letter = "ဗ", Pronunciation = "ba\n(let chike)" },
-			new MyanmarLetter { Letter = "ဘ", Pronunciation = "ba (gome)" },
-			new MyanmarLetter { Letter = "မ", Pronunciation = "ma" },
-			new MyanmarLetter { Letter = "ယ", Pronunciation = "ya (pet let)" },
-			new MyanmarLetter { Letter = "ရ", Pronunciation = "ya (gaout)" },
-			new MyanmarLetter { Letter = "လ", Pronunciation = "la" },
-			new MyanmarLetter { Letter = "ဝ", Pronunciation = "wa" },
-			new MyanmarLetter { Letter = "သ", Pronunciation = "tha" },
-			new MyanmarLetter { Letter = "ဟ", Pronunciation = "ha" },
-			new MyanmarLetter { Letter = "ဠ", Pronunciation = "la gyi" },
-			new MyanmarLetter { Letter = "အ", Pronunciation = "ah" }
-		};
-		}
-	}
+    public class DreamEntry
+    {
+        public int Id { get; set; }
+        public int GroupId { get; set; }
+        public string Title { get; set; } = null!;
+    }
 
-	public class DreamEntry
-	{
-		public int Id { get; set; }
-		public int GroupId { get; set; }
-		public string Title { get; set; } = null!;
-	}
+    private string SearchQuery = "";
+    private int SelectedGroupId = 0;
+    private bool IsSearching => !string.IsNullOrWhiteSpace(SearchQuery);
+    private List<DreamEntry> Dreams = new();
+    private List<DreamEntry> Heads = new();
+    private readonly List<MyanmarLetter> Alphabet = GetMyanmarAlphabet();
 
-	private List<DreamEntry> Dreams = new();
-	private List<DreamEntry> AllDreams = new();
-	private List<DreamEntry> Heads = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await IndexedDb.InitializeAsync();
+        
+        // Initial data load if needed
+        var existing = await IndexedDb.SearchAsync<DreamEntry>("");
+        if (!existing.Any())
+        {
+            var allDreams = await HttpClient.GetFromJsonAsync<List<DreamEntry>>("data/detail.json");
+            if (allDreams != null)
+            {
+                await IndexedDb.BulkInsertAsync(allDreams);
+            }
+        }
 
-	private async Task Detail(string name)
-	{
-		if (AllDreams.Count == 0)
-		{
-			string apiEndpointHead = $"data/group.json";
-			Heads = await HttpClient.GetFromJsonAsync<List<DreamEntry>>(apiEndpointHead);
+        Heads = await HttpClient.GetFromJsonAsync<List<DreamEntry>>("data/group.json") ?? new();
+    }
 
-			string apiEndpointDetail = $"data/detail.json";
-			AllDreams = await HttpClient.GetFromJsonAsync<List<DreamEntry>>(apiEndpointDetail);
-		}
+    private async Task HandleSearch()
+    {
+        SelectedGroupId = 0;
+        if (string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            Dreams = new();
+        }
+        else
+        {
+            Dreams = await IndexedDb.SearchAsync<DreamEntry>(SearchQuery);
+        }
+        StateHasChanged();
+    }
 
-		var id = Heads.Where(x => x.Title.Substring(0, 5).Contains(name)).First().GroupId;
-		Dreams = AllDreams!.Where(x => x.GroupId == id).ToList()!;
-		StateHasChanged();
-	}
+    private async Task FilterByLetter(string letter)
+    {
+        SearchQuery = "";
+        var head = Heads.FirstOrDefault(x => x.Title.Contains($"[ {letter} ]"));
+        if (head != null)
+        {
+            SelectedGroupId = head.GroupId;
+            Dreams = await IndexedDb.GetByGroupIdAsync<DreamEntry>(SelectedGroupId);
+        }
+        else
+        {
+            Dreams = new();
+        }
+        StateHasChanged();
+    }
 
-	private void Back()
-	{
-		Dreams = new();
-		StateHasChanged();
-	}
+    private void BackToHome()
+    {
+        SearchQuery = "";
+        SelectedGroupId = 0;
+        Dreams = new();
+        StateHasChanged();
+    }
+
+    private static List<MyanmarLetter> GetMyanmarAlphabet() => new()
+    {
+        new() { Letter = "က", Pronunciation = "ka (gyi)" },
+        new() { Letter = "ခ", Pronunciation = "kha (kway)" },
+        new() { Letter = "ဂ", Pronunciation = "ga (nge)" },
+        new() { Letter = "ဃ", Pronunciation = "ga (gyi)" },
+        new() { Letter = "င", Pronunciation = "nga" },
+        new() { Letter = "စ", Pronunciation = "sa (lone)" },
+        new() { Letter = "ဆ", Pronunciation = "sa (lain)" },
+        new() { Letter = "ဇ", Pronunciation = "za (kwe)" },
+        new() { Letter = "ဈ", Pronunciation = "za (ms)" },
+        new() { Letter = "ည", Pronunciation = "nya" },
+        new() { Letter = "ဋ", Pronunciation = "ta (ltc)" },
+        new() { Letter = "ဌ", Pronunciation = "hta (wb)" },
+        new() { Letter = "ဍ", Pronunciation = "da (yg)" },
+        new() { Letter = "ဎ", Pronunciation = "da (ym)" },
+        new() { Letter = "ဏ", Pronunciation = "na (gyi)" },
+        new() { Letter = "တ", Pronunciation = "ta (wp)" },
+        new() { Letter = "ထ", Pronunciation = "hta (ht)" },
+        new() { Letter = "ဒ", Pronunciation = "da (dw)" },
+        new() { Letter = "ဓ", Pronunciation = "da (oc)" },
+        new() { Letter = "န", Pronunciation = "na (nge)" },
+        new() { Letter = "ပ", Pronunciation = "pa (st)" },
+        new() { Letter = "ဖ", Pronunciation = "pha (wh)" },
+        new() { Letter = "ဗ", Pronunciation = "ba (lc)" },
+        new() { Letter = "ဘ", Pronunciation = "ba (gm)" },
+        new() { Letter = "မ", Pronunciation = "ma" },
+        new() { Letter = "ယ", Pronunciation = "ya (pl)" },
+        new() { Letter = "ရ", Pronunciation = "ya (gt)" },
+        new() { Letter = "လ", Pronunciation = "la" },
+        new() { Letter = "ဝ", Pronunciation = "wa" },
+        new() { Letter = "သ", Pronunciation = "tha" },
+        new() { Letter = "ဟ", Pronunciation = "ha" },
+        new() { Letter = "ဠ", Pronunciation = "la gyi" },
+        new() { Letter = "အ", Pronunciation = "ah" }
+    };
 }

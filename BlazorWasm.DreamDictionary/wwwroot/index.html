@@ -9,146 +9,36 @@
     <base href="/" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Explore the meanings of your dreams with DreamDictionary. Authored by Sann Lynn Htun.">
+    <meta name="description"
+        content="Explore the meanings of your dreams with DreamDictionary. Authored by Sann Lynn Htun.">
     <meta name="author" content="Sann Lynn Htun">
     <meta name="application-name" content="DreamDictionary">
-    <meta name="keywords" content="Dream, Dictionary, Dream Meaning, Dream Interpretation, Sann Lynn Htun, DreamDictionary">
+    <meta name="keywords"
+        content="Dream, Dictionary, Dream Meaning, Dream Interpretation, Sann Lynn Htun, DreamDictionary">
     <meta name="robots" content="index, follow">
     <meta property="og:title" content="DreamDictionary">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://blazor-wasm-dream-dictionary.vercel.app/">
-    <meta property="og:image" content="https://blazor-wasm-dream-dictionary.vercel.app/favicon.png">
-    <meta property="og:description" content="Explore the meanings of your dreams with DreamDictionary. Authored by Sann Lynn Htun.">
-    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:image" content="favicon.svg">
+    <meta property="og:description"
+        content="Explore the meanings of your dreams with DreamDictionary. Authored by Sann Lynn Htun.">
+    <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="DreamDictionary">
-    <meta name="twitter:description" content="Explore the meanings of your dreams with DreamDictionary. Authored by Sann Lynn Htun.">
-    <meta name="twitter:image" content="https://blazor-wasm-dream-dictionary.vercel.app/favicon.png">
-    <link rel="icon" href="https://blazor-wasm-dream-dictionary.vercel.app/favicon.png" type="image/png">
+    <meta name="twitter:description"
+        content="Explore the meanings of your dreams with DreamDictionary. Authored by Sann Lynn Htun.">
+    <meta name="twitter:image" content="favicon.svg">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
-    <!--<link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />-->
-    <!--<link rel="stylesheet" href="css/app.css" />-->
-
-    <link rel="icon" type="image/png" href="favicon.png" />
-
-    <!--<link href="BlazorWasm.DreamDictionary.styles.css" rel="stylesheet" />-->
-
+    <link href="css/app.css" rel="stylesheet" />
     <link href="manifest.webmanifest" rel="manifest" />
-
-    <link rel="apple-touch-icon" sizes="512x512" href="favicon.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="favicon.png" />
-
-    <style>
-        body {
-            font-family: sans-serif;
-            /* background-color: #B18CD9; */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            /* background-color: #C7AEE4; */
-            padding: 20px;
-            margin: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            /*max-width: 800px;*/
-            width: 90%;
-            /* Adjust width for responsiveness */
-        }
-
-        h1 {
-            color: #7888AF;
-            text-align: center;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            /* Responsive grid */
-            gap: 50px;
-        }
-
-        .card {
-            background-color: #F0F3FC;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-            .card p {
-                margin: 5px 0;
-            }
-
-            .card .letter {
-                font-size: 2em;
-                font-weight: bold;
-            }
-
-        /* Mobile Responsiveness */
-        @media (max-width: 600px) {
-            .grid {
-                grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-                /* Adjust column width */
-                gap: 20px;
-            }
-
-            .card .letter {
-                font-size: 1.5em;
-                /* Adjust letter size */
-            }
-
-            .card {
-                padding: 5px;
-            }
-        }
-
-        .card:hover {
-            background-color: #7888AF;
-            /* Use the secondary color for hover */
-            color: #C7AEE4;
-            /* Switch text color to the primary color */
-            transition: background-color 0.3s, color 0.3s;
-            /* Add a smooth transition effect */
-            cursor: pointer;
-            /* Change cursor to a pointer hand */
-        }
-
-        .back-button {
-            width: 100px;
-            height: 50px;
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #7888AF;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            cursor: pointer;
-            position: relative;
-        }
-
-            .back-button::before {
-                /*content: "";*/
-                position: absolute;
-                top: 50%;
-                left: 15px;
-                transform: translateY(-50%);
-                border-width: 8px 8px 0 0;
-                border-style: solid;
-                border-color: white transparent transparent transparent;
-            }
-    </style>
+    <link rel="apple-touch-icon" href="favicon.svg" />
 </head>
 
 <body>
-    <div id="app" class="container">
-        <!--<svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>-->
+    <div id="app" class="min-h-screen bg-background text-foreground">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="animate-pulse text-2xl font-bold text-muted-foreground">Dream Dictionary Loading...</div>
+        </div>
     </div>
 
     <!--<div id="blazor-error-ui">
